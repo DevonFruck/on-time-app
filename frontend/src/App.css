@@ -1,5 +1,6 @@
 .App {
-  text-align: center;
+  display: flex;
+  /* flex-wrap: wrap; */
 }
 
 .App-logo {
@@ -35,4 +36,53 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+.user-card {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  width: 30rem;
+  /* border: 2px solid gray; */
+  padding: 1rem 0;
+  margin: 1rem 0.5rem 0.5rem 1rem;
+}
+
+.name-bar {
+  display: flex;
+  padding-left: 1rem;
+  font-size: 2rem;
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  background-color: pink;
+  justify-content: space-between;
+}
+
+.task {
+  font-size: 2rem;
+  font-family: Helvetica;
+  display: flex;
+  width: 30rem;
+  padding: 1rem;
+  text-align: center;
+}
+
+.task p {
+  font-size: 1.5rem;
+}
+
+.checkbox {
+  margin: auto;
+  text-align: center;
+  width: 1rem;
+}
+
+.task-input {
+  display: flex;
+  padding-left: 5px;
+  padding-top: 5px;
+}
+
+.title-btns {
+  display: flex;
+  gap: 1rem;
 }
