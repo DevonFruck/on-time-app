@@ -94,15 +94,15 @@ function App() {
 
   // TODO: fetch the initial data from backend
   useEffect(() => {
-    // const fetchData = async () => {
-    //   await axios.get("http://localhost:3001/users")
-    //     .then( res => {
-    //       //setAllTasks(res)
-    //       console.log(res)
-    //     })
-    // }
+    const fetchData = async () => {
+      await axios.get("http://localhost:3001/users")
+        .then( res => {
+          //setAllTasks(res)
+          console.log(res)
+        })
+    }
 
-    //fetchData()
+    fetchData()
 
     setAllTasks(data);
     setSignedInUser(12);
