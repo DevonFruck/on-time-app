@@ -17,9 +17,3 @@ COPY . .
 
 EXPOSE 3001
 CMD [ "node", "./bin/www" ]
-
-
-
-
-
-# docker run --name hoursDB -p 3306:3306 -e MYSQL_ROOT_PASSWORD=the-admin -d mysql

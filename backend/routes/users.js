@@ -3,21 +3,24 @@ var express = require('express');
 var router = express.Router();
 const { Client } = require('pg')
 
-var client = new Client({
-  host: 'host.docker.internal',
-  port: 49153,
-  user: 'postgres',
-  password: 'postgrespw',
-})
+let client = null;
 
-client.connect(err => {
-  if (err) {
-    console.error('connection error', err.stack)
-  } else {
-    console.log('connected')
-  }
-})
+setTimeout( () => {
+  client = new Client({
+    host: 'host.docker.internal',
+    port: 5432,
+    user: 'postgres',
+    password: 'postgrespw',
+  })
 
+  client.connect((err) => {
+    if (err) {
+      console.log('connection error', err.stack)
+    } else {
+      console.log('connected')
+    }
+  })
+}, 5000)
 
 
 /* GET users tasks. */

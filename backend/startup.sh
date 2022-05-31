@@ -1,0 +1,1 @@
+docker run --name on-time-db -e POSTGRES_PASSWORD=iamadmin -p 5432:5432 -d postgres
