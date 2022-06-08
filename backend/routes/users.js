@@ -4,13 +4,15 @@ var router = express.Router();
 const { Client } = require('pg')
 
 let client = null;
+let hostAddress = process.env.npm_config_host;
 
 setTimeout( () => {
   client = new Client({
-    host: 'host.docker.internal',
-    port: 5432,
     user: 'postgres',
-    password: 'postgrespw',
+    host: hostAddress,
+    database: 'postgres',
+    password: "iamtheadmin12345",
+    port: "5432",
   })
 
   client.connect((err) => {
@@ -20,7 +22,7 @@ setTimeout( () => {
       console.log('connected')
     }
   })
-}, 5000)
+}, 2000)
 
 
 /* GET users tasks. */
@@ -39,11 +41,6 @@ router.get('/', function(req, response, next) {
         })
         response.send(groupedData)
     })
-
-    //console.log(groupedData)
-    //response.send(res.rows)
-
-    //res.send('respond with a resource');
 });
 
 /* PUT user task. */
@@ -57,11 +54,6 @@ router.put('/', function(req, response, next) {
         res.rows.forEach(task => {
             groupedData[task.name].append({title: task.task_name, isComplete: task.is_complete})
         })
-
-        //console.log(groupedData)
-
-        //response.send(res.rows)
-
     })
     res.send('respond with a resource');
 });

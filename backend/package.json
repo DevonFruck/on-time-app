@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "nodemon ./bin/www"
+    "dev": "nodemon ./bin/www",
+    "docker": "nodemon ./bin/www --host='database'"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
@@ -13,5 +14,8 @@
     "morgan": "~1.9.1",
     "nodemon": "^2.0.16",
     "pg": "^8.7.3"
+  },
+  "config": {
+    "host": "localhost"
   }
 }
