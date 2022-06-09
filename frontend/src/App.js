@@ -5,6 +5,7 @@ import SendIcon from "@mui/icons-material/Send";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import EditIcon from '@mui/icons-material/Edit';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 
 import {
   TextField,
@@ -41,6 +42,31 @@ function AvailableButtons({ editMode, setEditMode, enabled }) {
     }
 }
 
+async function fetchAll() {
+  await axios.get("http://localhost:3001/users/get-all")
+    .then( res => {
+      //setAllTasks(res.data)
+      return res.data;  
+    })
+}
+
+async function addTask(reqBody) {
+  return await axios.put("http://localhost:3001/users/add", reqBody)
+    .then( res => {
+      return res.data.taskId;
+    })
+}
+
+async function deleteTask(reqBody) {
+  await axios.post("http://localhost:3001/users/remove", reqBody)
+    .then( res => {
+      //setAllTasks(res.data)
+      return res.data;
+    })
+}
+
+
+
 function App() {
 
   const [allTasks, setAllTasks] = useState([]);
@@ -57,15 +83,18 @@ function App() {
       const test = await axios.get("http://localhost:3001/users/get-all")
         .then( res => {
           setAllTasks(res.data)
-          console.log(res.data)
         })
     }
 
     fetchData()
 
-    //setAllTasks(data);
+    //Need to setup a login for getting the signed in user
     setSignedInUser(1);
   }, []);
+
+  useEffect( () => {
+    console.log(allTasks)
+  }, [allTasks])
 
   return (
     <div className="App">
@@ -88,7 +117,29 @@ function App() {
                         <TableRow align="left" className="task">
                           <TableCell>{task.title}</TableCell>
                           <TableCell align="right" className="checkbox">
+
+                            {editMode ?
+                              <Button
+                                onClick={() => {
+                                  const reqBody = {
+                                    userId: userId,
+                                    taskId: task.id
+                                  }
+
+                                  deleteTask(reqBody);
+
+                                  var updatedData = allTasks;
+                                  updatedData[userId].tasks = updatedData[userId].tasks.filter(
+                                    item => item.id !== task.id);
+                                  console.log(updatedData)
+                                  setAllTasks(updatedData);
+                                }}
+                              >
+                                <DeleteForeverIcon sx={{ color: "crimson" }}/>
+                              </Button>
+                             :
                             <Checkbox />
+                            }
                           </TableCell>
                         </TableRow>
                       );
@@ -111,14 +162,23 @@ function App() {
                 />
                 <Button
                   disabled={!newTask.trim()}
-                  onClick={() => {
-                    const newState = allTasks;
+                  onClick={async () => {
+                    var newState = allTasks;
                     
-                    newState[userId].tasks.push({
+                    const newTaskObj = {
                       taskName: newTask,
+                      userId: userId
+                    }
+                    
+                    const newTaskId = await addTask(newTaskObj);
+
+                    newState[userId].tasks.push({
+                      id: newTaskId,
+                      title: newTask,
                       isComplete: false,
-                      order: 4,
+                      //order: 4,
                     })
+
                     setAllTasks(newState);
                     setNewTask('');
                   }}
