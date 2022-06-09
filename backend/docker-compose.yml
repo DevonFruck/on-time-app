@@ -30,7 +30,5 @@ services:
     depends_on:
       - postgres
 
-    command: npm run dev --host=database
-
     ports:
-      - 3030:3030   # Currently not in use, hardcoded
+      - 3001:3001   # Currently not in use, hardcoded

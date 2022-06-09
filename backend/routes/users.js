@@ -74,11 +74,11 @@ router.get('/get-all', function(req, response, next) {
         if (err) throw err
         //console.log(res.rows)
 
-        res.rows.forEach(task => {
-          if (!(task.id in groupedData)) {
-            groupedData[task.id] = {name: task.name, tasks: []};
+        res.rows.forEach(row => {
+          if (!(row.id in groupedData)) {
+            groupedData[row.id] = {name: row.name, tasks: []};
           }
-          groupedData[task.id].tasks.push({title: task.task_name, isComplete: task.is_complete})
+          groupedData[row.id].tasks.push({id: row.task_id, title: row.task_name, isComplete: row.is_complete})
           
         
         })
@@ -88,20 +88,64 @@ router.get('/get-all', function(req, response, next) {
 });
 
 /* PUT user task. */
-router.put('/add-task', function(req, response, next) {
-  console.log('request body: ');
+router.put('/add', function(req, response, next) {
 
-  let taskName = req.body.task_name;
-  let id = req.body.id;
+  var taskName = req.body.taskName;
+  var userId = req.body.userId;
 
   client.query(
     `
     INSERT INTO public.tasks(id, task_name)
-    VALUES (${id}, '${taskName}')
+    VALUES (${userId}, '${taskName}')
+    RETURNING task_id;
+    `, (err, res) => {
+      if (err || res.rows.length > 1) throw err
+
+      response.status(200).send({taskId: res.rows[0].task_id})
+  })
+});
+
+/* PUT user task. */
+router.post('/remove', function(req, response, next) {
+
+  var userId = req.body.userId;
+  var taskId = req.body.taskId;
+
+  client.query(
+    `
+    DELETE FROM public.tasks
+    WHERE task_id=${taskId} AND id=${userId}
     `, (err, res) => {
       if (err) throw err
 
-      response.send('Added task successfully');
+      response.send('task removed successfully');
+    }
+  )
+});
+
+/* POST user update task. */
+router.post('/status', function(req, response, next) {
+  console.log('ayoo')
+  var taskId = req.body.task_id;
+  var userId = req.body.id;
+  var status = !!req.body.new_status;
+  
+  console.log('wahoo')
+  console.log(taskId)
+  console.log(userId)
+  console.log(status)
+  client.query(
+    `
+    UPDATE public.tasks
+    SET is_complete = ${status}
+    WHERE task_id=${taskId} AND id=${userId};
+    `, (err, res) => {
+      if (err) {
+        response.send('task update failed');
+        throw err
+      } else {
+        response.send('task updated successfully');
+      }
   })
 });
 
