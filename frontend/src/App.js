@@ -42,47 +42,6 @@ function AvailableButtons({ editMode, setEditMode, enabled }) {
 }
 
 function App() {
-  let data = [
-    {
-      name: "Devon",
-      id: 12,
-      tasks: [
-        {
-          taskName: "mow the grass",
-          isComplete: false,
-          order: 1,
-        },
-        {
-          taskName: "eat some tea",
-          isComplete: true,
-          order: 3,
-        },
-        {
-          taskName: "cry",
-          isComplete: false,
-          order: 2,
-        },
-      ],
-    },
-    {
-      name: "Johnny",
-      id: 52,
-      tasks: [
-        {
-          taskName: "woohoo ur dad",
-          isComplete: false,
-        },
-        {
-          taskName: "sleep",
-          isComplete: true,
-        },
-        {
-          taskName: "snore",
-          isComplete: false,
-        },
-      ],
-    },
-  ];
 
   const [allTasks, setAllTasks] = useState([]);
 
@@ -95,36 +54,39 @@ function App() {
   // TODO: fetch the initial data from backend
   useEffect(() => {
     const fetchData = async () => {
-      await axios.get("http://localhost:3001/users")
+      const test = await axios.get("http://localhost:3001/users/get-all")
         .then( res => {
-          //setAllTasks(res)
-          console.log(res)
+          setAllTasks(res.data)
+          console.log(res.data)
         })
     }
 
     fetchData()
 
-    setAllTasks(data);
-    setSignedInUser(12);
+    //setAllTasks(data);
+    setSignedInUser(1);
   }, []);
 
   return (
     <div className="App">
-      {allTasks.map((user) => {
+      {Object.entries(allTasks).map((user) => {
+        const userId = parseInt(user[0]);
+        const userData = user[1];
+
         return (
           <Paper elevation={4} className="user-card">
             <div className="name-bar">
-                {user.name}
-                <AvailableButtons editMode={editMode} setEditMode={setEditMode} enabled={user.id === signedInUser}/>
+                {userData.name}
+                <AvailableButtons editMode={editMode} setEditMode={setEditMode} enabled={userId === signedInUser}/>
             </div>
 
             <Table>
               <TableBody>
-                {Array.isArray(user.tasks)
-                  ? user.tasks.map((task) => {
+                {Array.isArray(userData.tasks)
+                  ? userData.tasks.map((task) => {
                       return (
                         <TableRow align="left" className="task">
-                          <TableCell>{task.taskName}</TableCell>
+                          <TableCell>{task.title}</TableCell>
                           <TableCell align="right" className="checkbox">
                             <Checkbox />
                           </TableCell>
@@ -134,7 +96,7 @@ function App() {
                   : null}
               </TableBody>
             </Table>
-            {user.id === signedInUser && (
+            {userId === signedInUser && (
               <span className="task-input">
                 <TextField
                   value={newTask}
@@ -150,16 +112,13 @@ function App() {
                 <Button
                   disabled={!newTask.trim()}
                   onClick={() => {
-                    const newState = allTasks.map((user) => {
-                      if (user.id === 12) {
-                        user.tasks.push({
-                          taskName: newTask,
-                          isComplete: false,
-                          order: 4,
-                        });
-                      }
-                      return user;
-                    });
+                    const newState = allTasks;
+                    
+                    newState[userId].tasks.push({
+                      taskName: newTask,
+                      isComplete: false,
+                      order: 4,
+                    })
                     setAllTasks(newState);
                     setNewTask('');
                   }}
