@@ -1,55 +1,13 @@
 var express = require('express');
-//const client = require('pg/lib/native/client');
 var router = express.Router();
-const { Client } = require('pg')
-
-let client = null;
-let hostAddress = process.env.npm_config_host;
-
-setTimeout( async () => {
-  client = new Client({
-    user: 'postgres',
-    host: hostAddress,
-    database: 'postgres',
-    password: "iamtheadmin12345",
-    port: "5432",
-  })
-
-  await client.connect((err) => {
-    if (err) {
-      console.log('connection error', err.stack)
-    } else {
-      console.log('connected')
-    }
-  })
-
-  await client.query(
-    `
-      CREATE TABLE IF NOT EXISTS public.tasks
-      (
-          id numeric NOT NULL,
-          task_id numeric NOT NULL,
-          task_name text COLLATE pg_catalog."default" NOT NULL,
-          is_complete boolean DEFAULT false,
-          CONSTRAINT tasks_pkey PRIMARY KEY (task_id)
-      );
-      
-      CREATE TABLE IF NOT EXISTS public.users
-      (
-          id numeric NOT NULL,
-          name text COLLATE pg_catalog."default" NOT NULL,
-          CONSTRAINT users_pkey PRIMARY KEY (id)
-      );
-    `
-  );
-}, 2000)
-
+const dbQuery = require('../db/dbConnection');
 
 /* GET users tasks. DEPRECATED */
-router.get('/', function(req, response, next) {
+router.get('/', async function(req, response, next) {
 
   let groupedData = {};
-  client.query('SELECT * FROM public.tasks', (err, res) => {
+  var result = await 
+  dbQuery('SELECT * FROM public.tasks', (err, res) => {
       if (err) throw err
 
       res.rows.forEach(task => {
@@ -63,10 +21,13 @@ router.get('/', function(req, response, next) {
 });
 
 /* get all user task. */
-router.get('/get-all', function(req, response, next) {
+router.get('/get-all', async function(req, response, next) {
+  console.log('in the endpoint')
+    getPool().connect();
 
+    console.log('allah')
     let groupedData = {};
-    client.query(
+    getPool().connect().query(
       `
       SELECT * FROM public.tasks
       LEFT JOIN public.users ON public.tasks.id=public.users.id
@@ -83,8 +44,8 @@ router.get('/get-all', function(req, response, next) {
         
         })
         response.send(groupedData);
-    })
-    
+      }
+    )
 });
 
 /* PUT user task. */
@@ -93,7 +54,7 @@ router.put('/add', function(req, response, next) {
   var taskName = req.body.taskName;
   var userId = req.body.userId;
 
-  client.query(
+  dbQuery(
     `
     INSERT INTO public.tasks(id, task_name)
     VALUES (${userId}, '${taskName}')
@@ -111,7 +72,7 @@ router.post('/remove', function(req, response, next) {
   var userId = req.body.userId;
   var taskId = req.body.taskId;
 
-  client.query(
+  getPool().query(
     `
     DELETE FROM public.tasks
     WHERE task_id=${taskId} AND id=${userId}
@@ -125,16 +86,11 @@ router.post('/remove', function(req, response, next) {
 
 /* POST user update task. */
 router.post('/status', function(req, response, next) {
-  console.log('ayoo')
-  var taskId = req.body.task_id;
-  var userId = req.body.id;
-  var status = !!req.body.new_status;
+  const taskId = req.body.task_id;
+  const userId = req.body.id;
+  const status = !!req.body.new_status;
   
-  console.log('wahoo')
-  console.log(taskId)
-  console.log(userId)
-  console.log(status)
-  client.query(
+  getPool().query(
     `
     UPDATE public.tasks
     SET is_complete = ${status}
@@ -147,6 +103,19 @@ router.post('/status', function(req, response, next) {
         response.send('task updated successfully');
       }
   })
+});
+
+
+
+router.get('/test', async function(req, response, next) {
+  const queryString = `
+  SELECT * FROM public.tasks
+  LEFT JOIN public.users ON public.tasks.id=public.users.id`
+
+    let groupedData = {};
+    var result = await dbQuery(queryString)
+
+    response.status(result.status).send(result.data)
 });
 
 module.exports = router;
