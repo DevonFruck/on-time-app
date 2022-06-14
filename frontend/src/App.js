@@ -82,8 +82,6 @@ function App() {
     const fetchData = async () => {
       const test = await axios.get("http://localhost:3001/task/get-all")
         .then( res => {
-          console.log('oppa')
-          console.log(res)
           setAllTasks(res.data)
         })
     }
@@ -93,10 +91,6 @@ function App() {
     //Need to setup a login for getting the signed in user
     setSignedInUser(1);
   }, []);
-
-  useEffect( () => {
-    console.log(allTasks)
-  }, [allTasks])
 
   return (
     <div className="App">
