@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
-const { connectClient } = require('../db/dbConnection');
-
+const dbQuery = require('../db/dbConnection');
+const dbError = 'Unexpected database error';
 
 
 /* GET users tasks. DEPRECATED */
