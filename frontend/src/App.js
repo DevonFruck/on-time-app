@@ -43,7 +43,7 @@ function AvailableButtons({ editMode, setEditMode, enabled }) {
 }
 
 async function fetchAll() {
-  await axios.get("http://localhost:3001/users/get-all")
+  await axios.get("http://localhost:3001/task/get-all")
     .then( res => {
       //setAllTasks(res.data)
       return res.data;  
@@ -51,14 +51,14 @@ async function fetchAll() {
 }
 
 async function addTask(reqBody) {
-  return await axios.put("http://localhost:3001/users/add", reqBody)
+  return await axios.put("http://localhost:3001/task/add", reqBody)
     .then( res => {
       return res.data.taskId;
     })
 }
 
 async function deleteTask(reqBody) {
-  await axios.post("http://localhost:3001/users/remove", reqBody)
+  await axios.post("http://localhost:3001/task/remove", reqBody)
     .then( res => {
       //setAllTasks(res.data)
       return res.data;
@@ -80,8 +80,10 @@ function App() {
   // TODO: fetch the initial data from backend
   useEffect(() => {
     const fetchData = async () => {
-      const test = await axios.get("http://localhost:3001/users/get-all")
+      const test = await axios.get("http://localhost:3001/task/get-all")
         .then( res => {
+          console.log('oppa')
+          console.log(res)
           setAllTasks(res.data)
         })
     }
@@ -131,7 +133,6 @@ function App() {
                                   var updatedData = allTasks;
                                   updatedData[userId].tasks = updatedData[userId].tasks.filter(
                                     item => item.id !== task.id);
-                                  console.log(updatedData)
                                   setAllTasks(updatedData);
                                 }}
                               >

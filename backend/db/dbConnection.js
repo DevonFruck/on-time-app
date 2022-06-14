@@ -76,7 +76,8 @@
 // }
 const { Pool } = require('pg')
 
-let mainPool = null;
+var mainPool = null;
+var poolCreated = false;
 const hostAddress = process.env.npm_config_host;
 
 async function createPool() {
@@ -88,36 +89,18 @@ async function createPool() {
     port: "5432",
     connectionTimeoutMillis: 5000
   });
-  console.log('created pool');
   return pool;
 }
 
-async function dbQuery(queryString) {
-  let query = await new Promise(( async (resolve, reject) => {
+async function dbQuery(queryString, parameters) {
+  if(!poolCreated) {
+    mainPool = await createPool();
+    poolCreated = true;
+  }
 
-    if(!mainPool) {
-      mainPool = await createPool();
-    }
-
-    mainPool.connect((err, db) => {
-      if (err) {
-        console.log('Client connection timeout');
-        console.log(err)
-        reject({ status:500, data:"Could not retreive client" });
-        return;
-      }
-
-      db.query(queryString, (err, result) => {
-        if (err) reject({ status:500, data:"Unexpected database error" });
-        resolve({ status:200, data:result.rows })
-      })
-    })
-  }))
-  .catch(err => {
-    return(err)
-  })
-
-  return query;
+  return res = await mainPool.query(queryString, parameters)
+    .then(res => { return res.rows})
+    .catch(err => { throw(err) })
 }
 
 
