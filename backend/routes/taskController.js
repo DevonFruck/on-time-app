@@ -15,10 +15,9 @@ router.put('/add', async function(req, response, next) {
     VALUES (${userId}, '${taskName}')
     RETURNING task_id;
   `
-  console.log(queryString)
+
   await dbQuery(queryString)
   .then(res => {
-    console.log(res)
     response.status(200).send({taskId: res[0].task_id})})
   .catch((err) => { 
     console.error(err);
@@ -70,7 +69,7 @@ router.post('/status', async function(req, response, next) {
 router.get('/get-all', async function(req, response, next) {
   const queryString = `
     SELECT * FROM public.tasks
-    LEFT JOIN public.users ON public.tasks.id=public.users.id
+    LEFT JOIN public.users ON public.tasks.task_id=public.users.user_id
   `
 
   await dbQuery(queryString)
@@ -78,10 +77,10 @@ router.get('/get-all', async function(req, response, next) {
     var groupedData = {};
 
     res.forEach(row => {
-      if (!(row.id in groupedData)) {
-        groupedData[row.id] = {name: row.name, tasks: []};
+      if (!(row.task_id in groupedData)) {
+        groupedData[row.user_id] = {name: row.name, tasks: []};
       }
-      groupedData[row.id].tasks.push({id: row.task_id, title: row.task_name, isComplete: row.is_complete})
+      groupedData[row.task_id].tasks.push({taskId: row.task_id, title: row.task_name, isComplete: row.is_complete})
     })
 
     response.status(200).send(groupedData);

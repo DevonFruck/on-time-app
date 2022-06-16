@@ -6,6 +6,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import LoginModal from './Components'
 
 import {
   TextField,
@@ -185,6 +186,7 @@ function App() {
           </Paper>
         );
       })}
+      <LoginModal />
     </div>
   );
 }

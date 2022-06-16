@@ -1,0 +1,45 @@
+
+
+.text-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+    margin-top: 2rem;
+}
+
+
+.MuiButtonBase-root.MuiButton-root.MuiButton-contained {
+    background-color:lightgreen;
+    font-size: 1rem;
+    font-family: Helvetica;
+    font-weight: 600;
+}
+
+.MuiPaper-root.MuiDialog-paper.MuiDialog-paperScrollPaper.MuiDialog-paperWidthSm.MuiPaper-elevation24.MuiPaper-rounded {
+    background-color: grey;
+    color: white;
+    padding: 2rem;
+}
+
+.MuiFormControl-root.MuiTextField-root {
+    color: white;
+}
+
+.MuiInputBase-input.MuiFilledInput-input {
+    color: white;
+}
+
+p.MuiFormHelperText-root {
+    color: white;
+}
+
+.submit-btn {
+    display: flex;
+    flex-direction: row-reverse;
+    margin-top: 2rem;
+}
+
+.btn-row {
+    display: flex;
+    justify-content: space-between;
+}
