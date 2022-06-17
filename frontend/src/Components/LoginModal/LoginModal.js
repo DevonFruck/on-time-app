@@ -1,17 +1,29 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Dialog, TextField, Button, DialogTitle, DialogContent } from "@material-ui/core";
-import styled, { css } from 'styled-components'
+import axios from "axios";
 import "./LoginModal.css";
 
-function LoginModal() {
+function LoginModal({ signedInUser, setSignedInUser }) {
 
     // Determines whether the modal displays info to login or add (create) a user.
-    const [addUserModal, setAddUserModal] = useState(true);
+    const [addUserModal, setAddUserModal] = useState(false);
     const [username, setUsername] = useState('');
     const [displayName, setDisplayname] = useState('');
+    const [allowClick, setAllowClick] = useState(true);
+
+    async function login() {
+        setAllowClick(false);
+        await axios.post("http://localhost:3001/user/authenticate", {username: username})
+          .then( res => {
+            setSignedInUser(res.data.userId);
+        }).catch(() => {
+            console.log('Login request failed.')
+        })
+        setAllowClick(true);
+    }
 
     return (
-        <Dialog open>
+        <Dialog open={signedInUser === null}>
         {addUserModal ?
             <div className="modal-content">
                 <DialogTitle>
@@ -36,22 +48,36 @@ function LoginModal() {
                             onChange={(event) => {setDisplayname(event.target.value)}}    
                         />
                     </div>
-                    <div className="submit-btn">
-                        <Button 
+                    <div className="btn-row">
+                        <Button
                             variant="contained"
+                            disabled={!allowClick}
                             onClick={() => {
                                 setAddUserModal(false)
                             }}    
                         >
-                            Submit
+                            Back to login
+                        </Button>
+                        <Button 
+                            variant="contained"
+                            disabled={!allowClick}
+                            onClick={() => {
+                                setAddUserModal(false)
+                            }}    
+                        >
+                            Create userData
                         </Button>
                     </div>
                 </DialogContent>
             </div>
 
 
-        :   
-            <ModalContent>
+        :  
+            <div>
+            <DialogTitle>
+                Add User!
+            </DialogTitle>
+            <DialogContent>
                 Existing user!
                 <TextField 
                     value={username}
@@ -63,6 +89,7 @@ function LoginModal() {
                 <div className="btn-row">
                     <Button 
                         variant="contained"
+                        disabled={!allowClick}
                         onClick={() => {
                             setAddUserModal(true)
                         }}    
@@ -71,24 +98,18 @@ function LoginModal() {
                     </Button>
                     <Button 
                         variant="contained"
-                        onClick={() => {
-                            setAddUserModal(false)
+                        disabled={!allowClick}
+                        onClick={async () => {
+                            await login();
                         }}    
                         >
                         Submit
                     </Button>
                 </div>
-            </ModalContent>
+            </DialogContent>
+            </div>
         }</Dialog>
     )
 }
-
-const ModalContent = styled.div`
-    display: flex;
-    flex-direction: column;
-    font-size: 5rem;
-`
-
-
 
 export default LoginModal;

@@ -43,14 +43,6 @@ function AvailableButtons({ editMode, setEditMode, enabled }) {
     }
 }
 
-async function fetchAll() {
-  await axios.get("http://localhost:3001/task/get-all")
-    .then( res => {
-      //setAllTasks(res.data)
-      return res.data;  
-    })
-}
-
 async function addTask(reqBody) {
   return await axios.put("http://localhost:3001/task/add", reqBody)
     .then( res => {
@@ -61,7 +53,6 @@ async function addTask(reqBody) {
 async function deleteTask(reqBody) {
   await axios.post("http://localhost:3001/task/remove", reqBody)
     .then( res => {
-      //setAllTasks(res.data)
       return res.data;
     })
 }
@@ -69,33 +60,30 @@ async function deleteTask(reqBody) {
 
 
 function App() {
-
   const [allTasks, setAllTasks] = useState([]);
-
-  //const [myTasks, setMyTasks] = useState([]);
-  const [editModeTasks, setEditModeTasks] = useState([]);
   const [signedInUser, setSignedInUser] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [newTask, setNewTask] =  useState('');
 
-  // TODO: fetch the initial data from backend
+
+  const fetchData = async () => {
+    await axios.get("http://localhost:3001/task/get-all")
+      .then( res => {
+        console.log(res.data)
+        setAllTasks(res.data)
+      })
+  }
+
   useEffect(() => {
-    const fetchData = async () => {
-      const test = await axios.get("http://localhost:3001/task/get-all")
-        .then( res => {
-          setAllTasks(res.data)
-        })
+    if (signedInUser) {
+      fetchData()
     }
-
-    fetchData()
-
-    //Need to setup a login for getting the signed in user
-    setSignedInUser(1);
-  }, []);
+  }, [signedInUser]);
 
   return (
     <div className="App">
-      {Object.entries(allTasks).map((user) => {
+      {signedInUser ?
+        Object.entries(allTasks).map((user) => {
         const userId = parseInt(user[0]);
         const userData = user[1];
 
@@ -185,8 +173,8 @@ function App() {
             )}
           </Paper>
         );
-      })}
-      <LoginModal />
+      }) : null}
+      <LoginModal signedInUser={signedInUser} setSignedInUser={setSignedInUser}/>
     </div>
   );
 }
