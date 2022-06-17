@@ -16,7 +16,7 @@ import {
   TableBody,
   TableCell,
   Paper
-} from "@material-ui/core";
+} from "@mui/material";
 
 function AvailableButtons({ editMode, setEditMode, enabled }) {
     if(!enabled) return;
