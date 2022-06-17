@@ -18,7 +18,7 @@ router.put('/add', async function(req, response, next) {
 
   await dbQuery(queryString)
   .then(res => {
-    response.status(200).send({taskId: res[0].task_id})})
+    response.status(200).send({taskId: res.rows[0].task_id})})
   .catch((err) => { 
     console.error(err);
     response.status(500).send(dbError);
@@ -37,7 +37,7 @@ router.post('/remove', async function(req, response, next) {
   `
 
   await dbQuery(queryString)
-  .then(res => { response.status(200).send(res)})
+  .then(res => { response.status(200).send(res.rows)})
   .catch((err) => { 
     console.error(err);
     response.status(500).send(dbError);
@@ -57,7 +57,9 @@ router.post('/status', async function(req, response, next) {
   `
 
   await dbQuery(queryString)
-  .then(res => { response.status(200).send('Successfully updated task')})
+  .then(res => { 
+    if(res.rowCount === 1)
+      response.status(200).send('Successfully updated task')})
   .catch((err) => { 
     console.error(err);
     response.status(500).send(dbError);
@@ -76,7 +78,7 @@ router.get('/get-all', async function(req, response, next) {
   .then( res => {
     var groupedData = {};
 
-    res.forEach(row => {
+    res.rows.forEach(row => {
       if (!(row.task_id in groupedData)) {
         groupedData[row.user_id] = {name: row.name, tasks: []};
       }
