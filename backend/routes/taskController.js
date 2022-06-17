@@ -71,20 +71,19 @@ router.post('/status', async function(req, response, next) {
 router.get('/get-all', async function(req, response, next) {
   const queryString = `
     SELECT * FROM public.tasks
-    LEFT JOIN public.users ON public.tasks.task_id=public.users.user_id
+    JOIN public.users ON public.tasks.user_id=public.users.user_id
   `
 
   await dbQuery(queryString)
   .then( res => {
     var groupedData = {};
-
     res.rows.forEach(row => {
       if (!(row.task_id in groupedData)) {
-        groupedData[row.user_id] = {name: row.name, tasks: []};
+        groupedData[row.user_id] = {name: row.display_name, tasks: []};
       }
-      groupedData[row.task_id].tasks.push({taskId: row.task_id, title: row.task_name, isComplete: row.is_complete})
+      groupedData[row.user_id].tasks.push({taskId: row.task_id, title: row.task_name, isComplete: row.is_complete})
     })
-
+    console.log(groupedData)
     response.status(200).send(groupedData);
   })
   .catch(err => {
