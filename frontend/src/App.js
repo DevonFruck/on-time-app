@@ -49,7 +49,6 @@ async function addTask(reqBody) {
 async function deleteTask(reqBody) {
   await axios.post("http://localhost:3001/task/remove", reqBody)
     .then( res => {
-      console.log(res)
       return res.data;
     })
 }
@@ -72,8 +71,8 @@ function App() {
   const fetchData = async () => {
     await axios.get("http://localhost:3001/task/get-all")
       .then( res => {
-        console.log(res.data)
         setAllTasks(res.data)
+        console.log(res.data)
       })
   }
 
@@ -82,6 +81,10 @@ function App() {
       fetchData()
     }
   }, [signedInUser]);
+
+  useEffect(() => {
+    console.log(allTasks)
+  }, [allTasks]);
 
   return (
     <div className="App">
@@ -99,7 +102,7 @@ function App() {
 
             <Table>
               <TableBody>
-                {userData?.tasks?.map((task) => {
+                {userData.tasks.map((task) => {
                       return (
                         <TableRow align="left" className="task">
                           <TableCell>{task.title}</TableCell>
@@ -112,13 +115,14 @@ function App() {
                                     userId: userId,
                                     taskId: task.taskId
                                   }
-
                                   await deleteTask(reqBody);
 
-                                  let newUserData = allTasks[userId];
-                                  newUserData.tasks = allTasks[userId].tasks.filter(
-                                    item => item.id !== task.id);
-                                  setAllTasks(allTasks[userId], ...newUserData);
+                                  let newUserData = JSON.parse(JSON.stringify(allTasks));
+
+                                  newUserData[userId].tasks = newUserData[userId].tasks.filter(
+                                    item => item.taskId !== task.taskId);
+                                  
+                                  setAllTasks(newUserData);
                                 }}
                               >
                                 <DeleteForeverIcon sx={{ color: "crimson" }}/>
@@ -159,13 +163,13 @@ function App() {
                     const newTaskId = await addTask(newTaskObj);
 
                     newState[userId].tasks.push({
-                      id: newTaskId,
+                      taskId: newTaskId,
                       title: newTask,
                       isComplete: false,
                       //order: 4,
                     })
 
-                    setAllTasks(newState);
+                    //setAllTasks(newState);
                     setNewTask('');
                   }}
                 >
