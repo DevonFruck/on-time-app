@@ -11,7 +11,8 @@ router.put('/add', async function(req, response, next) {
   var userId = req.body.userId;
 
   const queryString = `
-    INSERT INTO public.tasks(user_id, task_name)
+    INSERT INTO public.tasks(user
+      _id, task_name)
     VALUES (${userId}, '${taskName}')
     RETURNING task_id;
   `
