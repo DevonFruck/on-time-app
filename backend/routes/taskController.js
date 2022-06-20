@@ -11,7 +11,7 @@ router.put('/add', async function(req, response, next) {
   var userId = req.body.userId;
 
   const queryString = `
-    INSERT INTO public.tasks(id, task_name)
+    INSERT INTO public.tasks(user_id, task_name)
     VALUES (${userId}, '${taskName}')
     RETURNING task_id;
   `
@@ -33,7 +33,7 @@ router.post('/remove', async function(req, response, next) {
 
   const queryString = `
     DELETE FROM public.tasks
-    WHERE task_id=${taskId} AND id=${userId}
+    WHERE task_id=${taskId} AND user_id=${userId}
   `
 
   await dbQuery(queryString)
@@ -53,7 +53,7 @@ router.post('/status', async function(req, response, next) {
   const queryString = `
     UPDATE public.tasks
     SET is_complete = ${status}
-    WHERE task_id=${taskId} AND id=${userId};
+    WHERE task_id=${taskId} AND user_id=${userId};
   `
 
   await dbQuery(queryString)

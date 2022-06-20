@@ -3,10 +3,9 @@ import axios from "axios";
 import "./App.css";
 import SendIcon from "@mui/icons-material/Send";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import CancelIcon from '@mui/icons-material/Cancel';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-import LoginModal from './Components'
+import { LoginModal } from './Components'
 
 import {
   TextField,
@@ -24,9 +23,6 @@ function AvailableButtons({ editMode, setEditMode, enabled }) {
     if(editMode) {
         return(
             <span className="title-btns">
-                <Button onClick={() => setEditMode(false)}>
-                    <CancelIcon sx={{ color: "crimson" }}/>
-                </Button>
                 <Button onClick={() => setEditMode(false)}>
                     <CheckCircleIcon color='success'/>
                 </Button>
@@ -53,10 +49,18 @@ async function addTask(reqBody) {
 async function deleteTask(reqBody) {
   await axios.post("http://localhost:3001/task/remove", reqBody)
     .then( res => {
+      console.log(res)
       return res.data;
     })
 }
 
+async function handleAddTask() {
+
+}
+
+async function handleDeleteTask() {
+
+}
 
 
 function App() {
@@ -64,7 +68,6 @@ function App() {
   const [signedInUser, setSignedInUser] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [newTask, setNewTask] =  useState('');
-
 
   const fetchData = async () => {
     await axios.get("http://localhost:3001/task/get-all")
@@ -75,7 +78,7 @@ function App() {
   }
 
   useEffect(() => {
-    if (signedInUser) {
+    if (signedInUser !== null) {
       fetchData()
     }
   }, [signedInUser]);
@@ -83,7 +86,7 @@ function App() {
   return (
     <div className="App">
       {signedInUser ?
-        Object.entries(allTasks).map((user) => {
+        Object?.entries(allTasks)?.map((user) => {
         const userId = parseInt(user[0]);
         const userData = user[1];
 
@@ -96,8 +99,7 @@ function App() {
 
             <Table>
               <TableBody>
-                {Array.isArray(userData.tasks)
-                  ? userData.tasks.map((task) => {
+                {userData?.tasks?.map((task) => {
                       return (
                         <TableRow align="left" className="task">
                           <TableCell>{task.title}</TableCell>
@@ -105,18 +107,18 @@ function App() {
 
                             {editMode ?
                               <Button
-                                onClick={() => {
+                                onClick={async () => {
                                   const reqBody = {
                                     userId: userId,
-                                    taskId: task.id
+                                    taskId: task.taskId
                                   }
 
-                                  deleteTask(reqBody);
+                                  await deleteTask(reqBody);
 
-                                  var updatedData = allTasks;
-                                  updatedData[userId].tasks = updatedData[userId].tasks.filter(
+                                  let newUserData = allTasks[userId];
+                                  newUserData.tasks = allTasks[userId].tasks.filter(
                                     item => item.id !== task.id);
-                                  setAllTasks(updatedData);
+                                  setAllTasks(allTasks[userId], ...newUserData);
                                 }}
                               >
                                 <DeleteForeverIcon sx={{ color: "crimson" }}/>
@@ -128,7 +130,7 @@ function App() {
                         </TableRow>
                       );
                     })
-                  : null}
+                  }
               </TableBody>
             </Table>
             {userId === signedInUser && (
@@ -147,7 +149,7 @@ function App() {
                 <Button
                   disabled={!newTask.trim()}
                   onClick={async () => {
-                    var newState = allTasks;
+                    let newState = allTasks;
                     
                     const newTaskObj = {
                       taskName: newTask,
@@ -174,7 +176,7 @@ function App() {
           </Paper>
         );
       }) : null}
-      <LoginModal signedInUser={signedInUser} setSignedInUser={setSignedInUser}/>
+      <LoginModal signedInUser={signedInUser} setSignedInUser={setSignedInUser} />
     </div>
   );
 }

@@ -4,7 +4,7 @@ const dbQuery = require('../db/dbConnection');
 const dbError = 'Unexpected database error';
 
 
-/* GET users tasks. DEPRECATED */
+/* Login as user */
 router.post('/authenticate', async function(req, response, next) {
     const username = req.body.username;
 
@@ -27,7 +27,7 @@ router.post('/authenticate', async function(req, response, next) {
 
 });
 
-/* get all user task. */
+/* Create User */
 router.put('/create', async function(req, response, next) {
     const username = req.body.username;
     const displayName = req.body.displayName;
@@ -54,19 +54,11 @@ router.put('/create', async function(req, response, next) {
     })
 });
 
-/* PUT user task. */
-router.put('/add', function(req, response, next) {
 
-});
-
-/* PUT user task. */
+/* Remove user */
 router.post('/remove', function(req, response, next) {
 
 });
 
-/* POST user update task. */
-router.post('/status', function(req, response, next) {
-
-});
 
 module.exports = router;

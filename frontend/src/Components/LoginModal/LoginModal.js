@@ -3,13 +3,14 @@ import { Dialog, TextField, Button, DialogTitle, DialogContent } from "@material
 import axios from "axios";
 import "./LoginModal.css";
 
-function LoginModal({ signedInUser, setSignedInUser }) {
+export function LoginModal({ signedInUser, setSignedInUser }) {
 
     // Determines whether the modal displays info to login or add (create) a user.
     const [addUserModal, setAddUserModal] = useState(false);
     const [username, setUsername] = useState('');
     const [displayName, setDisplayname] = useState('');
     const [allowClick, setAllowClick] = useState(true);
+    const [openErrorModal, setOpenErrorModal] = useState(false);
 
     async function login() {
         setAllowClick(false);
@@ -18,19 +19,32 @@ function LoginModal({ signedInUser, setSignedInUser }) {
             setSignedInUser(res.data.userId);
         }).catch(() => {
             console.log('Login request failed.')
+            setOpenErrorModal(true);
         })
         setAllowClick(true);
     }
 
+    async function createUser() {
+        const reqBody = { username: username, displayName: displayName }
+        await axios.put("http://localhost:3001/user/create", reqBody)
+          .then( res => {
+            console.log(res)
+            setAddUserModal(false)
+            setDisplayname('');
+          }).catch(() => {
+
+          })
+    }
+
     return (
-        <Dialog open={signedInUser === null}>
+        <Dialog open={signedInUser === null} >
         {addUserModal ?
             <div className="modal-content">
                 <DialogTitle>
                     Add User!
                 </DialogTitle>
                 <DialogContent>
-                    I decided to not make this super secure since its just a task list app. so only a username will be required to login.
+                    I decided to not make this super secure since it's just a task list app. so only a username will be required to login.
                     <div className="text-fields">
                         <TextField 
                             value={username}
@@ -61,11 +75,12 @@ function LoginModal({ signedInUser, setSignedInUser }) {
                         <Button 
                             variant="contained"
                             disabled={!allowClick}
-                            onClick={() => {
-                                setAddUserModal(false)
+                            onClick={async () => {
+                                await createUser();
+                                //setAddUserModal(false)
                             }}    
                         >
-                            Create userData
+                            Create user
                         </Button>
                     </div>
                 </DialogContent>
@@ -75,10 +90,9 @@ function LoginModal({ signedInUser, setSignedInUser }) {
         :  
             <div>
             <DialogTitle>
-                Add User!
+                Existing User!
             </DialogTitle>
             <DialogContent>
-                Existing user!
                 <TextField 
                     value={username}
                     placeholder="Username"
@@ -94,7 +108,7 @@ function LoginModal({ signedInUser, setSignedInUser }) {
                             setAddUserModal(true)
                         }}    
                         >
-                        Create an account
+                        New User
                     </Button>
                     <Button 
                         variant="contained"
@@ -103,13 +117,18 @@ function LoginModal({ signedInUser, setSignedInUser }) {
                             await login();
                         }}    
                         >
-                        Submit
+                        Login
                     </Button>
                 </div>
             </DialogContent>
+            <Dialog open={openErrorModal}>
+                        Username could not be found. Try creating a user!
+                        <Button variant="contained" onClick={()=>{ setOpenErrorModal(false) }}>
+                            Continue
+                        </Button>
+            </Dialog>
             </div>
         }</Dialog>
+
     )
 }
-
-export default LoginModal;
