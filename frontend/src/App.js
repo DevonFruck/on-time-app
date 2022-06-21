@@ -10,6 +10,7 @@ import {
 } from "./Components";
 import "./App.css";
 
+
 function App() {
   const [allTasks, setAllTasks] = useState({});
   const [signedInUser, setSignedInUser] = useState(null);
