@@ -17,7 +17,7 @@ router.post('/authenticate', async function(req, response, next) {
         if(res.rowCount === 0) {
             response.status(404).send("Could not find user")
         } else {
-            response.status(200).send({ userId: res.rows[0].user_id })
+            response.status(200).send({ userId: res.rows[0].user_id, displayName: res.rows[0].display_name })
         }
     })
     .catch((err) => { 

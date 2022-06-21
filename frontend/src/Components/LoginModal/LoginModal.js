@@ -3,7 +3,7 @@ import { Dialog, TextField, Button, DialogTitle, DialogContent } from "@material
 import axios from "axios";
 import "./LoginModal.css";
 
-export function LoginModal({ signedInUser, setSignedInUser }) {
+export function LoginModal({ signedInUser, setSignedInUser, setUserDisplayName }) {
 
     // Determines whether the modal displays info to login or add (create) a user.
     const [addUserModal, setAddUserModal] = useState(false);
@@ -16,7 +16,9 @@ export function LoginModal({ signedInUser, setSignedInUser }) {
         setAllowClick(false);
         await axios.post("http://localhost:3001/user/authenticate", {username: username})
           .then( res => {
+            console.log(res)
             setSignedInUser(res.data.userId);
+            setUserDisplayName(res.data.displayName);
         }).catch(() => {
             console.log('Login request failed.')
             setOpenErrorModal(true);
@@ -28,7 +30,6 @@ export function LoginModal({ signedInUser, setSignedInUser }) {
         const reqBody = { username: username, displayName: displayName }
         await axios.put("http://localhost:3001/user/create", reqBody)
           .then( res => {
-            console.log(res)
             setAddUserModal(false)
             setDisplayname('');
           }).catch(() => {

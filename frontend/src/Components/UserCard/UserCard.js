@@ -6,7 +6,7 @@ import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 
-export function UserCard({ userData, userId, hasInput, handleDeleteTask, handleAddTask }) {
+export function UserCard({ userData, userId, hasInput, handleDeleteTask, handleAddTask, handleStatusChange }) {
 
     const [editMode, setEditMode] = useState(false);
     const [taskInput, setTaskInput] = useState('');
@@ -37,7 +37,7 @@ export function UserCard({ userData, userId, hasInput, handleDeleteTask, handleA
                             <TableCell align="right" className="checkbox">
                                 {editMode ?
                                     <Button
-                                    onClick={ async () => handleDeleteTask() }
+                                        onClick={ async () => handleDeleteTask(userId, task.taskId) }
                                     >
                                     <DeleteForeverIcon sx={{ color: "crimson" }}/>
                                     </Button>
@@ -62,12 +62,14 @@ export function UserCard({ userData, userId, hasInput, handleDeleteTask, handleA
                 multiline
                 maxRows={3}
                 fullWidth={true}
-                onChange={ (event) => setTaskInput(event.target.value) }
+                onChange={ (event) => {
+                    setTaskInput(event.target.value)
+                }}
             />
             <Button
                 disabled={!taskInput.trim()}
                 onClick={async () => {
-                    await handleAddTask();
+                    await handleAddTask(userId, taskInput.trim());
                     setTaskInput('');
                 }}
             >
