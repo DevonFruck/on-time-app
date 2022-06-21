@@ -23,7 +23,7 @@ async function dbQuery(queryString, parameters) {
   }
 
   return res = await mainPool.query(queryString, parameters)
-    .then(res => { return res.rows})
+    .then(res => { return res })
     .catch(err => { throw(err) })
 }
 
