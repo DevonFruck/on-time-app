@@ -1,190 +1,116 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import "./App.css";
-import SendIcon from "@mui/icons-material/Send";
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import CancelIcon from '@mui/icons-material/Cancel';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-
 import {
-  TextField,
-  Button,
-  Checkbox,
-  Table,
-  TableRow,
-  TableBody,
-  TableCell,
-  Paper
-} from "@mui/material";
-
-function AvailableButtons({ editMode, setEditMode, enabled }) {
-    if(!enabled) return;
-    if(editMode) {
-        return(
-            <span className="title-btns">
-                <Button onClick={() => setEditMode(false)}>
-                    <CancelIcon sx={{ color: "crimson" }}/>
-                </Button>
-                <Button onClick={() => setEditMode(false)}>
-                    <CheckCircleIcon color='success'/>
-                </Button>
-            </span>
-        )
-    } else {
-        return(
-            <span className="title-btns">
-                <Button onClick={() => setEditMode(true)}>
-                    <EditIcon/>
-                </Button>
-            </span>
-        )
-    }
-}
-
-async function fetchAll() {
-  await axios.get("http://localhost:3001/task/get-all")
-    .then( res => {
-      //setAllTasks(res.data)
-      return res.data;  
-    })
-}
-
-async function addTask(reqBody) {
-  return await axios.put("http://localhost:3001/task/add", reqBody)
-    .then( res => {
-      return res.data.taskId;
-    })
-}
-
-async function deleteTask(reqBody) {
-  await axios.post("http://localhost:3001/task/remove", reqBody)
-    .then( res => {
-      //setAllTasks(res.data)
-      return res.data;
-    })
-}
-
+  LoginModal,
+  UserCard,
+  getAllTasks,
+  addTask,
+  removeTask,
+  updateTaskStatus,
+} from "./Components";
+import "./App.css";
 
 
 function App() {
-
-  const [allTasks, setAllTasks] = useState([]);
-
-  //const [myTasks, setMyTasks] = useState([]);
-  const [editModeTasks, setEditModeTasks] = useState([]);
+  const [allTasks, setAllTasks] = useState({});
   const [signedInUser, setSignedInUser] = useState(null);
-  const [editMode, setEditMode] = useState(false);
-  const [newTask, setNewTask] =  useState('');
+  const [userDisplayName, setUserDisplayName] = useState(null);
 
-  // TODO: fetch the initial data from backend
-  useEffect(() => {
-    const fetchData = async () => {
-      const test = await axios.get("http://localhost:3001/task/get-all")
-        .then( res => {
-          setAllTasks(res.data)
-        })
+  const fetchData = async () => {
+    let tasks = await getAllTasks();
+
+    /*
+    Adds the logged in user to the list if not already
+    This makes it so their task card still shows up
+    although their task list is empty */
+    if (!tasks[signedInUser]) {
+      tasks[signedInUser] = {
+        name: userDisplayName,
+        tasks: [],
+      };
     }
 
-    fetchData()
+    setAllTasks(tasks);
+  };
 
-    //Need to setup a login for getting the signed in user
-    setSignedInUser(1);
-  }, []);
+  async function handleAddTask(userId, newTaskName, displayName) {
+    let newState = allTasks;
+
+    const reqBody = {
+      taskName: newTaskName,
+      userId: userId,
+    };
+    const newTaskId = await addTask(reqBody);
+
+    newState[userId].tasks.push({
+      taskId: newTaskId,
+      title: newTaskName,
+      isComplete: false,
+      //order: 4,
+    });
+
+    setAllTasks(newState);
+  }
+
+  async function handleDeleteTask(userId, taskId) {
+    const reqBody = {
+      userId: userId,
+      taskId: taskId,
+    };
+    await removeTask(reqBody);
+
+    let newUserData = JSON.parse(JSON.stringify(allTasks));
+
+    newUserData[userId].tasks = newUserData[userId].tasks.filter(
+      (item) => item.taskId !== taskId
+    );
+
+    setAllTasks(newUserData);
+  }
+
+  async function handleStatusChange(userId, taskId, status) {
+    const reqBody = {
+      userId: userId,
+      taskId: taskId,
+      newStatus: status,
+    };
+
+    await axios
+      .post("http://localhost:3001/task/remove", reqBody)
+      .then((res) => {
+        return res.data;
+      });
+  }
+
+  useEffect(() => {
+    if (signedInUser !== null) {
+      fetchData();
+    }
+  }, [signedInUser]);
 
   return (
     <div className="App">
-      {Object.entries(allTasks).map((user) => {
-        const userId = parseInt(user[0]);
-        const userData = user[1];
+      {signedInUser &&
+        Object?.entries(allTasks)?.map((user) => {
+          const userId = parseInt(user[0]);
+          const userData = user[1];
 
-        return (
-          <Paper elevation={4} className="user-card">
-            <div className="name-bar">
-                {userData.name}
-                <AvailableButtons editMode={editMode} setEditMode={setEditMode} enabled={userId === signedInUser}/>
-            </div>
-
-            <Table>
-              <TableBody>
-                {Array.isArray(userData.tasks)
-                  ? userData.tasks.map((task) => {
-                      return (
-                        <TableRow align="left" className="task">
-                          <TableCell>{task.title}</TableCell>
-                          <TableCell align="right" className="checkbox">
-
-                            {editMode ?
-                              <Button
-                                onClick={() => {
-                                  const reqBody = {
-                                    userId: userId,
-                                    taskId: task.id
-                                  }
-
-                                  deleteTask(reqBody);
-
-                                  var updatedData = allTasks;
-                                  updatedData[userId].tasks = updatedData[userId].tasks.filter(
-                                    item => item.id !== task.id);
-                                  setAllTasks(updatedData);
-                                }}
-                              >
-                                <DeleteForeverIcon sx={{ color: "crimson" }}/>
-                              </Button>
-                             :
-                            <Checkbox />
-                            }
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })
-                  : null}
-              </TableBody>
-            </Table>
-            {userId === signedInUser && (
-              <span className="task-input">
-                <TextField
-                  value={newTask}
-                  id="filled-basic"
-                  label="Enter new task"
-                  variant="filled"
-                  size="small"
-                  multiline
-                  maxRows={3}
-                  fullWidth={true}
-                  onChange={ (event) => setNewTask(event.target.value)}
-                />
-                <Button
-                  disabled={!newTask.trim()}
-                  onClick={async () => {
-                    var newState = allTasks;
-                    
-                    const newTaskObj = {
-                      taskName: newTask,
-                      userId: userId
-                    }
-                    
-                    const newTaskId = await addTask(newTaskObj);
-
-                    newState[userId].tasks.push({
-                      id: newTaskId,
-                      title: newTask,
-                      isComplete: false,
-                      //order: 4,
-                    })
-
-                    setAllTasks(newState);
-                    setNewTask('');
-                  }}
-                >
-                  <SendIcon color={newTask.trim() ? "primary" : "default"} />
-                </Button>
-              </span>
-            )}
-          </Paper>
-        );
-      })}
+          return (
+            <UserCard
+              userData={userData}
+              userId={userId}
+              hasInput={userId === signedInUser}
+              handleDeleteTask={handleDeleteTask}
+              handleAddTask={handleAddTask}
+              handleStatusChange={handleStatusChange}
+            />
+          );
+        })}
+      <LoginModal
+        signedInUser={signedInUser}
+        setSignedInUser={setSignedInUser}
+        setUserDisplayName={setUserDisplayName}
+      />
     </div>
   );
 }

@@ -11,15 +11,14 @@ router.put('/add', async function(req, response, next) {
   var userId = req.body.userId;
 
   const queryString = `
-    INSERT INTO public.tasks(id, task_name)
+    INSERT INTO public.tasks(user_id, task_name)
     VALUES (${userId}, '${taskName}')
     RETURNING task_id;
   `
-  console.log(queryString)
+
   await dbQuery(queryString)
   .then(res => {
-    console.log(res)
-    response.status(200).send({taskId: res[0].task_id})})
+    response.status(200).send({taskId: res.rows[0].task_id})})
   .catch((err) => { 
     console.error(err);
     response.status(500).send(dbError);
@@ -34,11 +33,11 @@ router.post('/remove', async function(req, response, next) {
 
   const queryString = `
     DELETE FROM public.tasks
-    WHERE task_id=${taskId} AND id=${userId}
+    WHERE task_id=${taskId} AND user_id=${userId}
   `
 
   await dbQuery(queryString)
-  .then(res => { response.status(200).send(res)})
+  .then(res => { response.status(200).send(res.rows)})
   .catch((err) => { 
     console.error(err);
     response.status(500).send(dbError);
@@ -54,11 +53,13 @@ router.post('/status', async function(req, response, next) {
   const queryString = `
     UPDATE public.tasks
     SET is_complete = ${status}
-    WHERE task_id=${taskId} AND id=${userId};
+    WHERE task_id=${taskId} AND user_id=${userId};
   `
 
   await dbQuery(queryString)
-  .then(res => { response.status(200).send('Successfully updated task')})
+  .then(res => { 
+    if(res.rowCount === 1)
+      response.status(200).send('Successfully updated task')})
   .catch((err) => { 
     console.error(err);
     response.status(500).send(dbError);
@@ -69,21 +70,19 @@ router.post('/status', async function(req, response, next) {
 
 router.get('/get-all', async function(req, response, next) {
   const queryString = `
-    SELECT * FROM public.tasks
-    LEFT JOIN public.users ON public.tasks.id=public.users.id
+    SELECT * FROM public.tasks t
+    JOIN public.users u ON u.user_id= t.user_id
   `
 
   await dbQuery(queryString)
   .then( res => {
     var groupedData = {};
-
-    res.forEach(row => {
-      if (!(row.id in groupedData)) {
-        groupedData[row.id] = {name: row.name, tasks: []};
+    res.rows.forEach(row => {
+      if (!(row.user_id in groupedData)) {
+        groupedData[row.user_id] = {name: row.display_name, tasks: []};
       }
-      groupedData[row.id].tasks.push({id: row.task_id, title: row.task_name, isComplete: row.is_complete})
+      groupedData[row.user_id].tasks.push({taskId: row.task_id, title: row.task_name, isComplete: row.is_complete})
     })
-
     response.status(200).send(groupedData);
   })
   .catch(err => {
