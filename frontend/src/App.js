@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import {
   LoginModal,
   UserCard,
@@ -7,31 +6,14 @@ import {
   addTask,
   removeTask,
   updateTaskStatus,
+  Loader,
 } from "./Components";
 import "./App.css";
-
 
 function App() {
   const [allTasks, setAllTasks] = useState({});
   const [signedInUser, setSignedInUser] = useState(null);
   const [userDisplayName, setUserDisplayName] = useState(null);
-
-  const fetchData = async () => {
-    let tasks = await getAllTasks();
-
-    /*
-    Adds the logged in user to the list if not already
-    This makes it so their task card still shows up
-    although their task list is empty */
-    if (!tasks[signedInUser]) {
-      tasks[signedInUser] = {
-        name: userDisplayName,
-        tasks: [],
-      };
-    }
-
-    setAllTasks(tasks);
-  };
 
   async function handleAddTask(userId, newTaskName) {
     let newState = allTasks;
@@ -75,41 +57,64 @@ function App() {
       newStatus: status,
     };
 
-    await updateTaskStatus(reqBody)
-      .then((res) => {
-        return res.data;
-      });
+    await updateTaskStatus(reqBody).then((res) => {
+      return res.data;
+    });
   }
 
   useEffect(() => {
+    const fetchData = async () => {
+      let tasks = await getAllTasks();
+
+      /*
+      Adds the logged in user to the list if not already
+      This makes it so their task card still shows up
+      although their task list is empty */
+      if (tasks[signedInUser] === undefined) {
+        console.log("adding you to list");
+        tasks[signedInUser] = {
+          name: userDisplayName,
+          tasks: [],
+        };
+      }
+      setAllTasks(tasks);
+    };
+
     if (signedInUser !== null) {
       fetchData();
     }
-  }, [signedInUser]);
+  }, [signedInUser, userDisplayName]);
 
   return (
-    <div className="App">
-      {signedInUser && Object?.entries(allTasks)?.map((user) => {
-        const userId = parseInt(user[0]);
-        const userData = user[1];
+    <>
+      <div className="title-row">On Time!</div>
+      <div className="usercard-section">
+        {signedInUser ? (
+          Object?.entries(allTasks)?.map((user) => {
+            const userId = parseInt(user[0]);
+            const userData = user[1];
 
-        return (
-          <UserCard
-            userData={userData}
-            userId={userId}
-            hasInput={userId === signedInUser}
-            handleDeleteTask={handleDeleteTask}
-            handleAddTask={handleAddTask}
-            handleStatusChange={handleStatusChange}
-          />
-        );
-      })}
-      <LoginModal
-        signedInUser={signedInUser}
-        setSignedInUser={setSignedInUser}
-        setUserDisplayName={setUserDisplayName}
-      />
-    </div>
+            return (
+              <UserCard
+                userData={userData}
+                userId={userId}
+                hasInput={userId === signedInUser}
+                handleDeleteTask={handleDeleteTask}
+                handleAddTask={handleAddTask}
+                handleStatusChange={handleStatusChange}
+              />
+            );
+          })
+        ) : (
+          <Loader />
+        )}
+        <LoginModal
+          signedInUser={signedInUser}
+          setSignedInUser={setSignedInUser}
+          setUserDisplayName={setUserDisplayName}
+        />
+      </div>
+    </>
   );
 }
 

@@ -7,12 +7,12 @@ import {
   Button,
   Checkbox,
   TextField,
-  Paper,
 } from "@material-ui/core";
 import EditIcon from "@mui/icons-material/Edit";
 import SendIcon from "@mui/icons-material/Send";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import "./UserCard.css";
 
 export function UserCard({
   userData,
@@ -26,26 +26,28 @@ export function UserCard({
   const [taskInput, setTaskInput] = useState("");
 
   return (
-    <Paper elevation={4} className="user-card">
+    <div className="user-card">
       <div className="name-bar">
         {userData.name}
         <span className="title-btns">
-          {editMode ? (
-            <Button onClick={() => setEditMode(false)}>
-              <CheckCircleIcon color="success" />
-            </Button>
-          ) : (
-            <Button onClick={() => setEditMode(true)}>
-              <EditIcon />
-            </Button>
-          )}
+          {hasInput ? (
+            editMode ? (
+              <Button onClick={() => setEditMode(false)}>
+                <CheckCircleIcon color="success" />
+              </Button>
+            ) : (
+              <Button onClick={() => setEditMode(true)}>
+                <EditIcon />
+              </Button>
+            )
+          ) : null}
         </span>
       </div>
       <Table>
         <TableBody>
           {userData?.tasks?.map((task) => {
             return (
-              <TableRow align="left" className="task">
+              <TableRow align="left">
                 <TableCell>{task.title}</TableCell>
                 <TableCell align="right" className="checkbox">
                   {editMode ? (
@@ -57,12 +59,14 @@ export function UserCard({
                       <DeleteForeverIcon sx={{ color: "crimson" }} />
                     </Button>
                   ) : (
-                    <Checkbox 
+                    <Checkbox
                       defaultChecked={task.isComplete}
                       disabled={!hasInput}
                       disableRipple
-                      onChange={(e) => handleStatusChange(userId, e.target.checked)}
-                      />
+                      onChange={(e) =>
+                        handleStatusChange(userId, e.target.checked)
+                      }
+                    />
                   )}
                 </TableCell>
               </TableRow>
@@ -74,6 +78,7 @@ export function UserCard({
       {hasInput && (
         <span className="task-input">
           <TextField
+            className="input-field"
             value={taskInput}
             id="filled-basic"
             label="Enter new task"
@@ -85,6 +90,7 @@ export function UserCard({
             onChange={(event) => {
               setTaskInput(event.target.value);
             }}
+            sx={{ input: { color: "red" } }}
           />
           <Button
             disabled={!taskInput.trim()}
@@ -93,10 +99,10 @@ export function UserCard({
               setTaskInput("");
             }}
           >
-            <SendIcon color={taskInput.trim() ? "primary" : "default"} />
+            <SendIcon />
           </Button>
         </span>
       )}
-    </Paper>
+    </div>
   );
 }
