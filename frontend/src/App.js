@@ -33,7 +33,7 @@ function App() {
     setAllTasks(tasks);
   };
 
-  async function handleAddTask(userId, newTaskName, displayName) {
+  async function handleAddTask(userId, newTaskName) {
     let newState = allTasks;
 
     const reqBody = {
@@ -75,8 +75,7 @@ function App() {
       newStatus: status,
     };
 
-    await axios
-      .post("http://localhost:3001/task/remove", reqBody)
+    await updateTaskStatus(reqBody)
       .then((res) => {
         return res.data;
       });
@@ -90,22 +89,21 @@ function App() {
 
   return (
     <div className="App">
-      {signedInUser &&
-        Object?.entries(allTasks)?.map((user) => {
-          const userId = parseInt(user[0]);
-          const userData = user[1];
+      {signedInUser && Object?.entries(allTasks)?.map((user) => {
+        const userId = parseInt(user[0]);
+        const userData = user[1];
 
-          return (
-            <UserCard
-              userData={userData}
-              userId={userId}
-              hasInput={userId === signedInUser}
-              handleDeleteTask={handleDeleteTask}
-              handleAddTask={handleAddTask}
-              handleStatusChange={handleStatusChange}
-            />
-          );
-        })}
+        return (
+          <UserCard
+            userData={userData}
+            userId={userId}
+            hasInput={userId === signedInUser}
+            handleDeleteTask={handleDeleteTask}
+            handleAddTask={handleAddTask}
+            handleStatusChange={handleStatusChange}
+          />
+        );
+      })}
       <LoginModal
         signedInUser={signedInUser}
         setSignedInUser={setSignedInUser}

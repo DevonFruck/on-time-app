@@ -60,7 +60,7 @@ router.post('/status', async function(req, response, next) {
   .then(res => { 
     if(res.rowCount === 1)
       response.status(200).send('Successfully updated task')})
-  .catch((err) => { 
+  .catch((err) => {
     console.error(err);
     response.status(500).send(dbError);
   })

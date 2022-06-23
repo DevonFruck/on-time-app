@@ -57,7 +57,12 @@ export function UserCard({
                       <DeleteForeverIcon sx={{ color: "crimson" }} />
                     </Button>
                   ) : (
-                    <Checkbox />
+                    <Checkbox 
+                      defaultChecked={task.isComplete}
+                      disabled={!hasInput}
+                      disableRipple
+                      onChange={(e) => handleStatusChange(userId, e.target.checked)}
+                      />
                   )}
                 </TableCell>
               </TableRow>
