@@ -8,12 +8,20 @@ import {
   updateTaskStatus,
   Loader,
 } from "./Components";
+import io from "socket.io-client";
 import "./App.css";
 
 function App() {
   const [allTasks, setAllTasks] = useState({});
   const [signedInUser, setSignedInUser] = useState(null);
   const [userDisplayName, setUserDisplayName] = useState(null);
+  const [socket, setSocket] = useState(null);
+
+  useEffect(() => {
+    socket?.on("update", (message) => {
+      console.log("we updatinggg");
+    });
+  }, [socket]);
 
   async function handleAddTask(userId, newTaskName) {
     let newState = allTasks;
@@ -71,7 +79,6 @@ function App() {
       This makes it so their task card still shows up
       although their task list is empty */
       if (tasks[signedInUser] === undefined) {
-        console.log("adding you to list");
         tasks[signedInUser] = {
           name: userDisplayName,
           tasks: [],
@@ -82,6 +89,7 @@ function App() {
 
     if (signedInUser !== null) {
       fetchData();
+      setSocket(io.connect("http://localhost:3001"));
     }
   }, [signedInUser, userDisplayName]);
 
@@ -96,6 +104,7 @@ function App() {
 
             return (
               <UserCard
+                key={userId}
                 userData={userData}
                 userId={userId}
                 hasInput={userId === signedInUser}

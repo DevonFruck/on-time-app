@@ -26,7 +26,6 @@ export function LoginModal({
     await axios
       .post("http://localhost:3001/user/authenticate", { username: username })
       .then((res) => {
-        console.log(res);
         setSignedInUser(res.data.userId);
         setUserDisplayName(res.data.displayName);
       })

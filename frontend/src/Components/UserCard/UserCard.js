@@ -47,7 +47,7 @@ export function UserCard({
         <TableBody>
           {userData?.tasks?.map((task) => {
             return (
-              <TableRow align="left">
+              <TableRow key={task.taskId} align="left">
                 <TableCell>{task.title}</TableCell>
                 <TableCell align="right" className="checkbox">
                   {editMode ? (
