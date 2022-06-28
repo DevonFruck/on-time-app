@@ -17,7 +17,13 @@ router.put("/add", async function (req, response, next) {
 
   await dbQuery(queryString)
     .then((res) => {
-      response.status(200).send({ taskId: res.rows[0].task_id });
+      const newTaskId = res.rows[0].task_id;
+      socket.getSocket().emit("add", {
+        userId: userId,
+        taskName: taskName,
+        taskId: newTaskId,
+      });
+      response.status(200).send({ taskId: newTaskId });
     })
     .catch((err) => {
       console.error(err);
@@ -37,6 +43,7 @@ router.post("/remove", async function (req, response, next) {
 
   await dbQuery(queryString)
     .then((res) => {
+      socket.getSocket().emit("remove", req.body);
       response.status(200).send(res.rows);
     })
     .catch((err) => {
@@ -59,8 +66,10 @@ router.post("/status", async function (req, response, next) {
 
   await dbQuery(queryString)
     .then((res) => {
-      if (res.rowCount === 1)
+      if (res.rowCount === 1) {
+        socket.getSocket().emit("update", req.body);
         response.status(200).send("Successfully updated task");
+      }
     })
     .catch((err) => {
       console.error(err);
@@ -73,8 +82,6 @@ router.get("/get-all", async function (req, response, next) {
     SELECT * FROM public.tasks t
     JOIN public.users u ON u.user_id= t.user_id
   `;
-  //console.log(getIOInstance);
-  socket.getSocket().emit("update", "wowee");
 
   await dbQuery(queryString)
     .then((res) => {

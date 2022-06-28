@@ -1,13 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  LoginModal,
-  UserCard,
-  getAllTasks,
-  addTask,
-  removeTask,
-  updateTaskStatus,
-  Loader,
-} from "./Components";
+import { LoginModal, UserCard, getAllTasks, Loader } from "./Components";
 import io from "socket.io-client";
 import "./App.css";
 
@@ -18,22 +10,25 @@ function App() {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    socket?.on("update", (message) => {
-      console.log("we updatinggg");
+    socket?.on("update", (data) => {
+      handleStatusChange(data.userId, data.taskId, data.status);
     });
-  }, [socket]);
 
-  async function handleAddTask(userId, newTaskName) {
-    let newState = allTasks;
+    socket?.on("add", (data) => {
+      handleAddTask(data.userId, data.taskId, data.taskName);
+    });
 
-    const reqBody = {
-      taskName: newTaskName,
-      userId: userId,
-    };
-    const newTaskId = await addTask(reqBody);
+    socket?.on("remove", (data) => {
+      handleDeleteTask(data.userId, data.taskId);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allTasks]);
 
-    newState[userId].tasks.push({
-      taskId: newTaskId,
+  async function handleAddTask(userId, taskId, newTaskName) {
+    let newState = JSON.parse(JSON.stringify(allTasks));
+
+    newState[userId]?.tasks.push({
+      taskId: taskId,
       title: newTaskName,
       isComplete: false,
       //order: 4,
@@ -43,15 +38,9 @@ function App() {
   }
 
   async function handleDeleteTask(userId, taskId) {
-    const reqBody = {
-      userId: userId,
-      taskId: taskId,
-    };
-    await removeTask(reqBody);
-
     let newUserData = JSON.parse(JSON.stringify(allTasks));
 
-    newUserData[userId].tasks = newUserData[userId].tasks.filter(
+    newUserData[userId].tasks = await newUserData[userId].tasks.filter(
       (item) => item.taskId !== taskId
     );
 
@@ -59,15 +48,17 @@ function App() {
   }
 
   async function handleStatusChange(userId, taskId, status) {
-    const reqBody = {
-      userId: userId,
-      taskId: taskId,
-      newStatus: status,
-    };
+    let newData = JSON.parse(JSON.stringify(allTasks));
 
-    await updateTaskStatus(reqBody).then((res) => {
-      return res.data;
+    newData[userId]?.tasks.every((task) => {
+      if (task.taskId === taskId) {
+        task.isComplete = status;
+        return false;
+      }
+      return true;
     });
+
+    setAllTasks(newData);
   }
 
   useEffect(() => {

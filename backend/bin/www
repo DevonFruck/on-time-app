@@ -94,10 +94,10 @@ function onListening() {
   debug("Listening on " + bind);
 }
 
-io.on("connection", (socket) => {
-  console.log("a user connected");
-  io.emit("update", "what the frickin heck!");
-});
+// io.on("connection", (socket) => {
+//   console.log("a user connected");
+//   io.emit("update", "what the frickin heck!");
+// });
 
 function getSocket() {
   return io;
