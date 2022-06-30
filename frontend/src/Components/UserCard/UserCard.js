@@ -43,7 +43,7 @@ export function UserCard({ userData, userId, hasInput }) {
             return (
               <TableRow key={task.taskId} align="left">
                 <TableCell>{task.title}</TableCell>
-                <TableCell align="right" className="checkbox">
+                <TableCell align="right" className="checkbox" size="small">
                   {editMode ? (
                     <Button
                       onClick={async () => {
@@ -61,6 +61,9 @@ export function UserCard({ userData, userId, hasInput }) {
                       checked={task.isComplete}
                       disabled={!hasInput}
                       disableRipple
+                      style={{
+                        color: hasInput ? "#00968a" : "#36454f",
+                      }}
                       onChange={(e) => {
                         const reqBody = {
                           userId: userId,

@@ -27,10 +27,6 @@
   padding-top: 5px;
 }
 
-.input-field {
-  color: red;
-}
-
 .title-btns {
   display: flex;
   gap: 1rem;
@@ -38,4 +34,8 @@
 
 .MuiInputBase-root.MuiFilledInput-root.MuiFilledInput-underline.MuiInputBase-fullWidth.MuiInputBase-formControl.MuiInputBase-multiline.MuiFilledInput-multiline.MuiInputBase-marginDense.MuiFilledInput-marginDense {
   color: red;
+}
+
+.MuiTableCell-root.MuiTableCell-body.checkbox.MuiTableCell-alignRight.MuiTableCell-sizeSmall {
+  width: 2rem;
 }

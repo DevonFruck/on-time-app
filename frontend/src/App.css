@@ -3,6 +3,7 @@ html {
 }
 .usercard-section {
   display: flex;
+  align-items: flex-start;
 }
 
 .title-row {

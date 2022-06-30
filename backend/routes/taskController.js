@@ -31,7 +31,7 @@ router.put("/add", async function (req, response, next) {
     });
 });
 
-/* PUT user task. */
+/* POST remove user task. */
 router.post("/remove", async function (req, response, next) {
   var userId = req.body.userId;
   var taskId = req.body.taskId;
@@ -52,7 +52,7 @@ router.post("/remove", async function (req, response, next) {
     });
 });
 
-/* POST user update task. */
+/* POST update user task. */
 router.post("/status", async function (req, response, next) {
   const taskId = req.body.taskId;
   const userId = req.body.userId;
@@ -77,6 +77,7 @@ router.post("/status", async function (req, response, next) {
     });
 });
 
+/* GET get all tasks */
 router.get("/get-all", async function (req, response, next) {
   const queryString = `
     SELECT * FROM public.tasks t
