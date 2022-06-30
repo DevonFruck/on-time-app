@@ -1,31 +1,34 @@
 import React, { useEffect, useState } from "react";
-import {
-  LoginModal,
-  UserCard,
-  getAllTasks,
-  addTask,
-  removeTask,
-  updateTaskStatus,
-  Loader,
-} from "./Components";
+import { LoginModal, UserCard, getAllTasks, Loader } from "./Components";
+import io from "socket.io-client";
 import "./App.css";
 
 function App() {
   const [allTasks, setAllTasks] = useState({});
   const [signedInUser, setSignedInUser] = useState(null);
   const [userDisplayName, setUserDisplayName] = useState(null);
+  const [socket, setSocket] = useState(null);
 
-  async function handleAddTask(userId, newTaskName) {
-    let newState = allTasks;
+  useEffect(() => {
+    socket?.on("update", (data) => {
+      handleStatusChange(data.userId, data.taskId, data.status);
+    });
 
-    const reqBody = {
-      taskName: newTaskName,
-      userId: userId,
-    };
-    const newTaskId = await addTask(reqBody);
+    socket?.on("add", (data) => {
+      handleAddTask(data.userId, data.taskId, data.taskName);
+    });
 
-    newState[userId].tasks.push({
-      taskId: newTaskId,
+    socket?.on("remove", (data) => {
+      handleDeleteTask(data.userId, data.taskId);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allTasks]);
+
+  async function handleAddTask(userId, taskId, newTaskName) {
+    let newState = JSON.parse(JSON.stringify(allTasks));
+
+    newState[userId]?.tasks.push({
+      taskId: taskId,
       title: newTaskName,
       isComplete: false,
       //order: 4,
@@ -35,15 +38,9 @@ function App() {
   }
 
   async function handleDeleteTask(userId, taskId) {
-    const reqBody = {
-      userId: userId,
-      taskId: taskId,
-    };
-    await removeTask(reqBody);
-
     let newUserData = JSON.parse(JSON.stringify(allTasks));
 
-    newUserData[userId].tasks = newUserData[userId].tasks.filter(
+    newUserData[userId].tasks = await newUserData[userId].tasks.filter(
       (item) => item.taskId !== taskId
     );
 
@@ -51,15 +48,17 @@ function App() {
   }
 
   async function handleStatusChange(userId, taskId, status) {
-    const reqBody = {
-      userId: userId,
-      taskId: taskId,
-      newStatus: status,
-    };
+    let newData = JSON.parse(JSON.stringify(allTasks));
 
-    await updateTaskStatus(reqBody).then((res) => {
-      return res.data;
+    newData[userId]?.tasks.every((task) => {
+      if (task.taskId === taskId) {
+        task.isComplete = status;
+        return false;
+      }
+      return true;
     });
+
+    setAllTasks(newData);
   }
 
   useEffect(() => {
@@ -71,7 +70,6 @@ function App() {
       This makes it so their task card still shows up
       although their task list is empty */
       if (tasks[signedInUser] === undefined) {
-        console.log("adding you to list");
         tasks[signedInUser] = {
           name: userDisplayName,
           tasks: [],
@@ -82,6 +80,7 @@ function App() {
 
     if (signedInUser !== null) {
       fetchData();
+      setSocket(io.connect("http://localhost:3001"));
     }
   }, [signedInUser, userDisplayName]);
 
@@ -96,6 +95,7 @@ function App() {
 
             return (
               <UserCard
+                key={userId}
                 userData={userData}
                 userId={userId}
                 hasInput={userId === signedInUser}

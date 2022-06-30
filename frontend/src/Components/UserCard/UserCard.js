@@ -12,16 +12,10 @@ import EditIcon from "@mui/icons-material/Edit";
 import SendIcon from "@mui/icons-material/Send";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import { addTask, removeTask, updateTaskStatus } from "../";
 import "./UserCard.css";
 
-export function UserCard({
-  userData,
-  userId,
-  hasInput,
-  handleDeleteTask,
-  handleAddTask,
-  handleStatusChange,
-}) {
+export function UserCard({ userData, userId, hasInput }) {
   const [editMode, setEditMode] = useState(false);
   const [taskInput, setTaskInput] = useState("");
 
@@ -47,25 +41,37 @@ export function UserCard({
         <TableBody>
           {userData?.tasks?.map((task) => {
             return (
-              <TableRow align="left">
+              <TableRow key={task.taskId} align="left">
                 <TableCell>{task.title}</TableCell>
-                <TableCell align="right" className="checkbox">
+                <TableCell align="right" className="checkbox" size="small">
                   {editMode ? (
                     <Button
-                      onClick={async () =>
-                        handleDeleteTask(userId, task.taskId)
-                      }
+                      onClick={async () => {
+                        const reqBody = {
+                          userId: userId,
+                          taskId: task.taskId,
+                        };
+                        await removeTask(reqBody);
+                      }}
                     >
                       <DeleteForeverIcon sx={{ color: "crimson" }} />
                     </Button>
                   ) : (
                     <Checkbox
-                      defaultChecked={task.isComplete}
+                      checked={task.isComplete}
                       disabled={!hasInput}
                       disableRipple
-                      onChange={(e) =>
-                        handleStatusChange(userId, e.target.checked)
-                      }
+                      style={{
+                        color: hasInput ? "#00968a" : "#36454f",
+                      }}
+                      onChange={(e) => {
+                        const reqBody = {
+                          userId: userId,
+                          taskId: task.taskId,
+                          status: e.target.checked,
+                        };
+                        updateTaskStatus(reqBody);
+                      }}
                     />
                   )}
                 </TableCell>
@@ -95,7 +101,11 @@ export function UserCard({
           <Button
             disabled={!taskInput.trim()}
             onClick={async () => {
-              await handleAddTask(userId, taskInput.trim());
+              const reqBody = {
+                userId: userId,
+                taskName: taskInput.trim(),
+              };
+              await addTask(reqBody);
               setTaskInput("");
             }}
           >
