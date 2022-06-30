@@ -94,11 +94,7 @@ function onListening() {
   debug("Listening on " + bind);
 }
 
-// io.on("connection", (socket) => {
-//   console.log("a user connected");
-//   io.emit("update", "what the frickin heck!");
-// });
-
+/* Method for retreiving socket.io instance */
 function getSocket() {
   return io;
 }
