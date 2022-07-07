@@ -13,3 +13,15 @@ html {
   font-size: 5rem;
   font-weight: 900;
 }
+
+.content-section {
+  display: flex;
+}
+
+.chat-box {
+  float: right;
+  width: 20%;
+  background-color: #20232b;
+  word-wrap: break-word;
+  padding: 1rem;
+}

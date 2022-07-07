@@ -1,0 +1,11 @@
+.main {
+  float: right;
+  width: 20%;
+  background-color: #20232b;
+  word-wrap: break-word;
+  padding: 1rem;
+}
+
+p {
+  color: white;
+}

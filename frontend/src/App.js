@@ -1,10 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { LoginModal, UserCard, getAllTasks, Loader } from "./Components";
+import {
+  LoginModal,
+  UserCard,
+  getAllTasks,
+  Loader,
+  ChatBox,
+} from "./Components";
 import io from "socket.io-client";
 import "./App.css";
 
 function App() {
   const [allTasks, setAllTasks] = useState({});
+  const [chat, setChat] = useState(["wahooo", "hooya"]);
   const [signedInUser, setSignedInUser] = useState(null);
   const [userDisplayName, setUserDisplayName] = useState(null);
   const [socket, setSocket] = useState(null);
@@ -21,8 +28,17 @@ function App() {
     socket?.on("remove", (data) => {
       handleDeleteTask(data.userId, data.taskId);
     });
+
+    socket?.on("remove", (data) => {
+      handleDeleteTask(data.userId, data.taskId);
+    });
+
+    //Appends a chat message
+    socket?.on("message", (data) => {
+      setChat(...chat, data);
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allTasks]);
+  }, [allTasks, chat]);
 
   async function handleAddTask(userId, taskId, newTaskName) {
     let newState = JSON.parse(JSON.stringify(allTasks));
@@ -87,32 +103,35 @@ function App() {
   return (
     <>
       <div className="title-row">On Time!</div>
-      <div className="usercard-section">
-        {signedInUser ? (
-          Object?.entries(allTasks)?.map((user) => {
-            const userId = parseInt(user[0]);
-            const userData = user[1];
+      <div className="content-section">
+        <ChatBox chat={chat} setChat={setChat} socket={socket} />
+        <div className="usercard-section">
+          {signedInUser ? (
+            Object?.entries(allTasks)?.map((user) => {
+              const userId = parseInt(user[0]);
+              const userData = user[1];
 
-            return (
-              <UserCard
-                key={userId}
-                userData={userData}
-                userId={userId}
-                hasInput={userId === signedInUser}
-                handleDeleteTask={handleDeleteTask}
-                handleAddTask={handleAddTask}
-                handleStatusChange={handleStatusChange}
-              />
-            );
-          })
-        ) : (
-          <Loader />
-        )}
-        <LoginModal
-          signedInUser={signedInUser}
-          setSignedInUser={setSignedInUser}
-          setUserDisplayName={setUserDisplayName}
-        />
+              return (
+                <UserCard
+                  key={userId}
+                  userData={userData}
+                  userId={userId}
+                  hasInput={userId === signedInUser}
+                  handleDeleteTask={handleDeleteTask}
+                  handleAddTask={handleAddTask}
+                  handleStatusChange={handleStatusChange}
+                />
+              );
+            })
+          ) : (
+            <Loader />
+          )}
+          <LoginModal
+            signedInUser={signedInUser}
+            setSignedInUser={setSignedInUser}
+            setUserDisplayName={setUserDisplayName}
+          />
+        </div>
       </div>
     </>
   );
