@@ -4,6 +4,7 @@ html {
 .usercard-section {
   display: flex;
   align-items: flex-start;
+  flex-wrap: wrap;
 }
 
 .title-row {
@@ -16,12 +17,4 @@ html {
 
 .content-section {
   display: flex;
-}
-
-.chat-box {
-  float: right;
-  width: 20%;
-  background-color: #20232b;
-  word-wrap: break-word;
-  padding: 1rem;
 }

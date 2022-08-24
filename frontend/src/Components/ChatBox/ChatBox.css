@@ -1,11 +1,12 @@
 .main {
-  float: right;
-  width: 20%;
-  background-color: #20232b;
+  width: 20rem;
+  background-color: #94c5cc;
   word-wrap: break-word;
   padding: 1rem;
+  height: calc(100vh - 10.75rem);
+  flex-grow: 2;
 }
 
 p {
-  color: white;
+  color: #36454f;
 }

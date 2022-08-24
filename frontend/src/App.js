@@ -17,28 +17,29 @@ function App() {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    socket?.on("update", (data) => {
+    if (!socket) return;
+
+    socket.on("update", (data) => {
       handleStatusChange(data.userId, data.taskId, data.status);
     });
 
-    socket?.on("add", (data) => {
+    socket.on("add", (data) => {
       handleAddTask(data.userId, data.taskId, data.taskName);
     });
 
-    socket?.on("remove", (data) => {
+    socket.on("remove", (data) => {
       handleDeleteTask(data.userId, data.taskId);
     });
+  }, [allTasks, socket]);
 
-    socket?.on("remove", (data) => {
-      handleDeleteTask(data.userId, data.taskId);
-    });
+  useEffect(() => {
+    if (!socket) return;
 
     //Appends a chat message
-    socket?.on("message", (data) => {
-      setChat(...chat, data);
+    socket.on("MessageUpdate", (data) => {
+      setChat((oldChat) => [...oldChat, data]);
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allTasks, chat]);
+  }, [socket]);
 
   async function handleAddTask(userId, taskId, newTaskName) {
     let newState = JSON.parse(JSON.stringify(allTasks));
@@ -104,7 +105,12 @@ function App() {
     <>
       <div className="title-row">On Time!</div>
       <div className="content-section">
-        <ChatBox chat={chat} setChat={setChat} socket={socket} />
+        <ChatBox
+          chat={chat}
+          setChat={setChat}
+          name={userDisplayName}
+          socket={socket}
+        />
         <div className="usercard-section">
           {signedInUser ? (
             Object?.entries(allTasks)?.map((user) => {

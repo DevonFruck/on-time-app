@@ -1,28 +1,31 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import { Button, TextField } from "@material-ui/core";
 import "./ChatBox.css";
 
-export function ChatBox({ chat, setChat, socket }) {
-  const [inputBox, setInputBox] = useState("");
+export function ChatBox({ chat, setChat, name, socket }) {
+  const [inputText, setInputText] = useState("");
 
   function handleNewMessage() {
-    setChat(...chat, inputBox);
-
-    socket.emit("message", inputBox);
-    setInputBox("");
-    console.log("wahoo");
+    setChat((oldChat) => [...oldChat, inputText]);
+    socket.emit("NewMessage", inputText);
+    setInputText("");
   }
-
-  useEffect(() => {
-    console.log(inputBox);
-  });
 
   return (
     <div className="main">
       {chat.map((message) => (
-        <p>{message}</p>
+        <div>
+          <b>{name}: </b> {message}
+        </div>
       ))}
-      <input onchange={(e) => console.log(e.target.value)}></input>
-      <button onclick="handleNewMessage()">send</button>
+      <TextField
+        value={inputText}
+        onChange={(e) => setInputText(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") handleNewMessage();
+        }}
+      />
+      <Button onClick={() => handleNewMessage()}>Send</Button>
     </div>
   );
 }
