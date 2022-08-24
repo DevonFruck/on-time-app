@@ -1,5 +1,6 @@
 html {
   background-color: #43506c;
+  height: 100%;
 }
 .usercard-section {
   display: flex;
@@ -17,4 +18,5 @@ html {
 
 .content-section {
   display: flex;
+  height: 100%;
 }

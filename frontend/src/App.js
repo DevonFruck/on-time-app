@@ -11,10 +11,12 @@ import "./App.css";
 
 function App() {
   const [allTasks, setAllTasks] = useState({});
-  const [chat, setChat] = useState(["wahooo", "hooya"]);
+  const [chat, setChat] = useState([]);
   const [signedInUser, setSignedInUser] = useState(null);
   const [userDisplayName, setUserDisplayName] = useState(null);
   const [socket, setSocket] = useState(null);
+
+  const newMsgAudio = new Audio("/new-msg.mp3");
 
   useEffect(() => {
     if (!socket) return;
@@ -38,6 +40,7 @@ function App() {
     //Appends a chat message
     socket.on("MessageUpdate", (data) => {
       setChat((oldChat) => [...oldChat, data]);
+      newMsgAudio.play();
     });
   }, [socket]);
 

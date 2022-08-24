@@ -19,6 +19,8 @@ export function UserCard({ userData, userId, hasInput, socket }) {
   const [editMode, setEditMode] = useState(false);
   const [taskInput, setTaskInput] = useState("");
 
+  const completedAudio = new Audio("/completed.mp3");
+
   async function addNewTask() {
     const reqBody = {
       userId: userId,
@@ -83,6 +85,10 @@ export function UserCard({ userData, userId, hasInput, socket }) {
                           status: e.target.checked,
                         };
                         updateTaskStatus(reqBody);
+
+                        if (e.target.checked === true) {
+                          completedAudio.play();
+                        }
                         // socket.emit("UpdateServer", reqBody);
                       }}
                     />
