@@ -1,0 +1,43 @@
+.main {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  width: 20rem;
+  background-color: #94c5cc;
+  word-wrap: break-word;
+  /* padding: 1rem; */
+  height: calc(100vh - 8.75rem);
+  /* height: 100%; */
+  position: relative;
+}
+
+p {
+  color: #36454f;
+}
+
+.message {
+  padding: 0.5rem 0.5rem 0.25rem 0.5rem;
+}
+
+.message-history {
+  overflow-y: auto;
+  /* height: 80%; */
+}
+
+.message-box {
+  border: #00968a solid 2px;
+  padding-left: 0.25rem;
+}
+
+::-webkit-scrollbar {
+  width: 0.5rem;
+}
+
+::-webkit-scrollbar-track {
+  background: #00968a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #36454f;
+  border-radius: 1rem;
+}

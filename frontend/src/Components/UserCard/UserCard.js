@@ -15,9 +15,22 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { addTask, removeTask, updateTaskStatus } from "../";
 import "./UserCard.css";
 
-export function UserCard({ userData, userId, hasInput }) {
+export function UserCard({ userData, userId, hasInput, socket }) {
   const [editMode, setEditMode] = useState(false);
   const [taskInput, setTaskInput] = useState("");
+
+  const completedAudio = new Audio("/completed.mp3");
+
+  async function addNewTask() {
+    const reqBody = {
+      userId: userId,
+      taskName: taskInput.trim(),
+    };
+
+    await addTask(reqBody);
+    // socket.emit("AddServer", reqBody);
+    setTaskInput("");
+  }
 
   return (
     <div className="user-card">
@@ -52,6 +65,7 @@ export function UserCard({ userData, userId, hasInput }) {
                           taskId: task.taskId,
                         };
                         await removeTask(reqBody);
+                        // socket.emit("RemoveServer", reqBody);
                       }}
                     >
                       <DeleteForeverIcon sx={{ color: "crimson" }} />
@@ -71,6 +85,11 @@ export function UserCard({ userData, userId, hasInput }) {
                           status: e.target.checked,
                         };
                         updateTaskStatus(reqBody);
+
+                        if (e.target.checked === true) {
+                          completedAudio.play();
+                        }
+                        // socket.emit("UpdateServer", reqBody);
                       }}
                     />
                   )}
@@ -96,19 +115,12 @@ export function UserCard({ userData, userId, hasInput }) {
             onChange={(event) => {
               setTaskInput(event.target.value);
             }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") addNewTask();
+            }}
             sx={{ input: { color: "red" } }}
           />
-          <Button
-            disabled={!taskInput.trim()}
-            onClick={async () => {
-              const reqBody = {
-                userId: userId,
-                taskName: taskInput.trim(),
-              };
-              await addTask(reqBody);
-              setTaskInput("");
-            }}
-          >
+          <Button disabled={!taskInput.trim()} onClick={() => addNewTask()}>
             <SendIcon />
           </Button>
         </span>

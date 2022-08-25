@@ -1,9 +1,11 @@
 html {
   background-color: #43506c;
+  height: 100%;
 }
 .usercard-section {
   display: flex;
   align-items: flex-start;
+  flex-wrap: wrap;
 }
 
 .title-row {
@@ -12,4 +14,9 @@ html {
   color: #36454f;
   font-size: 5rem;
   font-weight: 900;
+}
+
+.content-section {
+  display: flex;
+  height: 100%;
 }

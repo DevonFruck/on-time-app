@@ -1,28 +1,48 @@
 import React, { useEffect, useState } from "react";
-import { LoginModal, UserCard, getAllTasks, Loader } from "./Components";
+import {
+  LoginModal,
+  UserCard,
+  getAllTasks,
+  Loader,
+  ChatBox,
+} from "./Components";
 import io from "socket.io-client";
 import "./App.css";
 
 function App() {
   const [allTasks, setAllTasks] = useState({});
+  const [chat, setChat] = useState([]);
   const [signedInUser, setSignedInUser] = useState(null);
   const [userDisplayName, setUserDisplayName] = useState(null);
   const [socket, setSocket] = useState(null);
 
+  const newMsgAudio = new Audio("/new-msg.mp3");
+
   useEffect(() => {
-    socket?.on("update", (data) => {
+    if (!socket) return;
+
+    socket.on("update", (data) => {
       handleStatusChange(data.userId, data.taskId, data.status);
     });
 
-    socket?.on("add", (data) => {
+    socket.on("add", (data) => {
       handleAddTask(data.userId, data.taskId, data.taskName);
     });
 
-    socket?.on("remove", (data) => {
+    socket.on("remove", (data) => {
       handleDeleteTask(data.userId, data.taskId);
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allTasks]);
+  }, [allTasks, socket]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    //Appends a chat message
+    socket.on("MessageUpdate", (data) => {
+      setChat((oldChat) => [...oldChat, data]);
+      newMsgAudio.play();
+    });
+  }, [socket]);
 
   async function handleAddTask(userId, taskId, newTaskName) {
     let newState = JSON.parse(JSON.stringify(allTasks));
@@ -87,32 +107,40 @@ function App() {
   return (
     <>
       <div className="title-row">On Time!</div>
-      <div className="usercard-section">
-        {signedInUser ? (
-          Object?.entries(allTasks)?.map((user) => {
-            const userId = parseInt(user[0]);
-            const userData = user[1];
-
-            return (
-              <UserCard
-                key={userId}
-                userData={userData}
-                userId={userId}
-                hasInput={userId === signedInUser}
-                handleDeleteTask={handleDeleteTask}
-                handleAddTask={handleAddTask}
-                handleStatusChange={handleStatusChange}
-              />
-            );
-          })
-        ) : (
-          <Loader />
-        )}
-        <LoginModal
-          signedInUser={signedInUser}
-          setSignedInUser={setSignedInUser}
-          setUserDisplayName={setUserDisplayName}
+      <div className="content-section">
+        <ChatBox
+          chat={chat}
+          setChat={setChat}
+          name={userDisplayName}
+          socket={socket}
         />
+        <div className="usercard-section">
+          {signedInUser ? (
+            Object?.entries(allTasks)?.map((user) => {
+              const userId = parseInt(user[0]);
+              const userData = user[1];
+
+              return (
+                <UserCard
+                  key={userId}
+                  userData={userData}
+                  userId={userId}
+                  hasInput={userId === signedInUser}
+                  handleDeleteTask={handleDeleteTask}
+                  handleAddTask={handleAddTask}
+                  handleStatusChange={handleStatusChange}
+                />
+              );
+            })
+          ) : (
+            <Loader />
+          )}
+          <LoginModal
+            signedInUser={signedInUser}
+            setSignedInUser={setSignedInUser}
+            setUserDisplayName={setUserDisplayName}
+          />
+        </div>
       </div>
     </>
   );

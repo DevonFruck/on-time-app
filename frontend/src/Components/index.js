@@ -7,3 +7,4 @@ export {
   getAllTasks,
 } from "./api/api.js";
 export { Loader } from "./Loader/Loader.js";
+export { ChatBox } from "./ChatBox/ChatBox.js";
