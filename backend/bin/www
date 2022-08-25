@@ -9,9 +9,14 @@ const debug = require("debug")("hours-backend:server");
 const http = require("http");
 const { Server } = require("socket.io");
 
-/**
- * Get port from environment and store in Express.
- */
+/* get .env variables */
+const dotenv = require("dotenv");
+
+if (process.env.npm_config_ENV !== undefined) {
+  dotenv.config({ path: `.env.${process.env.npm_config_ENV}` });
+}
+
+/* Get port from environment and store in Express */
 const PORT = normalizePort(process.env.PORT || "3001");
 const HOST = "0.0.0.0";
 

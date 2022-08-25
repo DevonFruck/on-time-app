@@ -2,14 +2,13 @@ const { Pool } = require("pg");
 
 var mainPool = null;
 var poolCreated = false;
-const hostAddress = process.env.npm_config_host;
 
 async function createPool() {
   const pool = new Pool({
     user: "postgres",
-    host: hostAddress,
+    host: process.env.DB_ADDRESS,
     database: "postgres",
-    password: "iamtheadmin12345",
+    password: process.env.DB_PASS,
     port: "5432",
     connectionTimeoutMillis: 5000,
   });
